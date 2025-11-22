@@ -31,4 +31,4 @@ Error Handling & Validation
 Proper structured responses and validation checks.
 
 Database Integration
-CRUD operations with MySQL/MongoDB/any DB you used.
+CRUD operations with MySQL used.
