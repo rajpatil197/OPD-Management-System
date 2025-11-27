@@ -21,22 +21,23 @@ import com.opd_management.entities.Doctor;
 import com.opd_management.entities.Patient;
 
 @RestController
-@RequestMapping("/patients")
-
+@RequestMapping("/patients") // Base URL for patient API
 public class PatientController {
 	
 	@Autowired 
-	private DoctorService doctorService; //to access doctor method
+	private DoctorService doctorService; // To access doctor details
 	
 	@Autowired
-	private PatientService patientService; //to access patient method
+	private PatientService patientService; // To access patient database operations
 
-	//saving patient data 
+
+	// ---------------------- CREATE PATIENT ----------------------
+	
 	@PostMapping("/")
-	public ResponseEntity<Patient>SavePatient(@RequestBody PatientDto patientDto){
+	public ResponseEntity<Patient> savePatient(@RequestBody PatientDto patientDto){
 		
+		// Mapping DTO data to entity
 		Patient patient = new Patient();
-		
 		patient.setPatient_name(patientDto.getPatient_name());
 		patient.setAge(patientDto.getAge());
 		patient.setAddress(patientDto.getAddress());
@@ -49,48 +50,61 @@ public class PatientController {
 		patient.setTobacco(patientDto.getTobacco());
 		patient.setCreated_at(patientDto.getCreated_at());
 		
+		// Assign doctor reference
 		Doctor doctor = doctorService.getDoctorById(patientDto.getDoctorid());
 		patient.setDoctorid(doctor);
 		
-		Patient SavePatient = patientService.savePatient(patient);
+		// Save patient into database
+		Patient savedPatient = patientService.savePatient(patient);
 		
-		return new ResponseEntity<>(SavePatient,HttpStatus.CREATED);
+		return new ResponseEntity<>(savedPatient, HttpStatus.CREATED);
 	}
 	
-	// show all patient list 
+	
+	// ---------------------- GET ALL PATIENTS ----------------------
+	
 	@GetMapping("/")
-	public ResponseEntity<List<Patient>>GetAllPatient(){
+	public ResponseEntity<List<Patient>> getAllPatient(){
 		
-		List<Patient> patient = patientService.getAllPatient();
+		List<Patient> patients = patientService.getAllPatient();
 		
-		if(patient == null) {
+		if(patients == null || patients.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(patient,HttpStatus.FOUND);
+		
+		return new ResponseEntity<>(patients, HttpStatus.OK);
 	}
 	
-	//show patient by there id
+	
+	// ---------------------- GET PATIENT BY ID ----------------------
+	
 	@GetMapping("/{id}")
-	public ResponseEntity<Patient>GetPatientById(@PathVariable("id")int id){
+	public ResponseEntity<Patient> getPatientById(@PathVariable("id") int id){
 		
 		Patient patient = patientService.getPatientByID(id);
 		
+		// Return 404 if not found
 		if(patient == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(patient,HttpStatus.FOUND);
+		
+		return new ResponseEntity<>(patient, HttpStatus.OK);
 	}
 	
-	//update patient by there id
+	
+	// ---------------------- UPDATE PATIENT ----------------------
+	
 	@PutMapping("/{id}")
-	public ResponseEntity<Patient>UpdatePatient(@PathVariable("id")int id,@RequestBody PatientDto patientDto){
+	public ResponseEntity<Patient> updatePatient(@PathVariable("id") int id, @RequestBody PatientDto patientDto){
 		
 		Patient patient = patientService.getPatientByID(id);
 		
+		// Check if patient exists
 		if(patient == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
+		// Update fields
 		patient.setPatient_name(patientDto.getPatient_name());
 		patient.setAge(patientDto.getAge());
 		patient.setAddress(patientDto.getAddress());
@@ -103,25 +117,33 @@ public class PatientController {
 		patient.setTobacco(patientDto.getTobacco());
 		patient.setCreated_at(patientDto.getCreated_at());
 		
+		// Update doctor mapping
 		Doctor doctor = doctorService.getDoctorById(patientDto.getDoctorid());
 		patient.setDoctorid(doctor);
 		
-		Patient UpdatePatient = patientService.savePatient(patient);
+		// Save updated record
+		Patient updatedPatient = patientService.savePatient(patient);
 		
-		return new ResponseEntity<>(UpdatePatient,HttpStatus.OK);
+		return new ResponseEntity<>(updatedPatient, HttpStatus.OK);
 	}
 	
-	//delete patient by there id
+	
+	// ---------------------- DELETE PATIENT ----------------------
+	
 	@DeleteMapping("/{id}")
-	public  ResponseEntity<Patient>DeletePatientById(@PathVariable("id")int id){
+	public ResponseEntity<Void> deletePatientById(@PathVariable("id") int id){
 		
 		Patient patient = patientService.getPatientByID(id);
 		
+		// Return NOT_FOUND if record does not exist
 		if(patient == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		
+		// Perform deletion
 		patientService.DeletePatientByID(id);
-		return new ResponseEntity<>(HttpStatus.MOVED_PERMANENTLY);
+		
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Correct delete response
 	}
 	
 }

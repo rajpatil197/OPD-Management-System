@@ -23,23 +23,26 @@ import com.opd_management.entities.Patient;
 import com.opd_management.entities.Visit;
 
 @RestController
-@RequestMapping("/visits")
+@RequestMapping("/visits") // Base route for Visit module
 public class VisitController {
 
 	@Autowired
-	private VisitService visitService;
+	private VisitService visitService; // Service layer to access visit operations
 	
 	@Autowired
-	private DoctorService doctorService;
+	private DoctorService doctorService; // Inject doctor service for linking doctor to visit
 	
 	@Autowired
-	private PatientService patientService;
+	private PatientService patientService; // Inject patient service for linking patient to visit
+	
+	
+	// ---------------------- CREATE VISIT ----------------------
 	
 	@PostMapping("/")
-	public ResponseEntity<Visit>SaveVisit(@RequestBody VisitDto visitDto){
+	public ResponseEntity<Visit> saveVisit(@RequestBody VisitDto visitDto){
 		
+		// Convert DTO to Entity
 		Visit visit = new Visit();
-		
 		visit.setVisit_date(visitDto.getVisit_date());
 		visit.setComplaints(visitDto.getComplaints());
 		visit.setDiagnosis(visitDto.getDiagnosis());
@@ -71,45 +74,62 @@ public class VisitController {
 		visit.setCreated_at(visitDto.getCreated_at());
 		visit.setUpdated_at(visitDto.getUpdated_at());
 		
+		// Assign related doctor and patient
 		Doctor doctor = doctorService.getDoctorById(visitDto.getDoctorid());
 		visit.setDoctorid(doctor);
 		
 		Patient patient = patientService.getPatientByID(visitDto.getPatientid());
 		visit.setPatientid(patient);
 		
-		Visit saveVisit = visitService.saveVisit(visit);
+		// Store in DB
+		Visit savedVisit = visitService.saveVisit(visit);
 		
-		return new ResponseEntity<>(saveVisit,HttpStatus.CREATED);
+		return new ResponseEntity<>(savedVisit, HttpStatus.CREATED);
 	}
+	
+	
+	// ---------------------- GET ALL VISITS ----------------------
 	
 	@GetMapping("/")
-	public ResponseEntity<List<Visit>>GetAllVisits(){
+	public ResponseEntity<List<Visit>> getAllVisits(){
 		
-		List<Visit> visit = visitService.GetAllVisit();
+		List<Visit> visits = visitService.GetAllVisit();
 		
-		if(visit == null) {
+		if(visits == null || visits.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(visit,HttpStatus.FOUND);
+		
+		return new ResponseEntity<>(visits, HttpStatus.OK);
 	}
+	
+	
+	// ---------------------- GET VISIT BY ID ----------------------
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Visit>GetVisitById(@PathVariable("id")int id){
+	public ResponseEntity<Visit> getVisitById(@PathVariable("id") int id){
 		
 		Visit visit = visitService.GetVisitById(id);
+		
 		if(visit == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(visit,HttpStatus.FOUND);
+		
+		return new ResponseEntity<>(visit, HttpStatus.OK);
 	}
 	
+	
+	// ---------------------- UPDATE VISIT ----------------------
+	
 	@PutMapping("/{id}")
-	public ResponseEntity<Visit>UpdateVisit(@PathVariable("id")int id,@RequestBody VisitDto visitDto){
+	public ResponseEntity<Visit> updateVisit(@PathVariable("id") int id, @RequestBody VisitDto visitDto){
 		
 		Visit visit = visitService.GetVisitById(id);
+		
 		if(visit == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		
+		// Updating same fields as in creation
 		visit.setVisit_date(visitDto.getVisit_date());
 		visit.setComplaints(visitDto.getComplaints());
 		visit.setDiagnosis(visitDto.getDiagnosis());
@@ -141,28 +161,32 @@ public class VisitController {
 		visit.setCreated_at(visitDto.getCreated_at());
 		visit.setUpdated_at(visitDto.getUpdated_at());
 		
+		// Update linked entities
 		Doctor doctor = doctorService.getDoctorById(visitDto.getDoctorid());
 		visit.setDoctorid(doctor);
 		
 		Patient patient = patientService.getPatientByID(visitDto.getPatientid());
 		visit.setPatientid(patient);
 		
-		Visit UpdateVisit = visitService.saveVisit(visit);
+		Visit updatedVisit = visitService.saveVisit(visit);
 		
-		return new ResponseEntity<>(UpdateVisit,HttpStatus.OK);	
+		return new ResponseEntity<>(updatedVisit, HttpStatus.OK);
 	}
 	
 	
+	// ---------------------- DELETE VISIT ----------------------
+	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Visit>DeleteVisit(@PathVariable("id")int id){
+	public ResponseEntity<Void> deleteVisit(@PathVariable("id") int id){
 		
 		Visit visit = visitService.GetVisitById(id);
+		
 		if(visit == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		
 		visitService.DeleteVisitById(id);
-		return new ResponseEntity<>(HttpStatus.MOVED_PERMANENTLY);
+		
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Correct delete response
 	}
-	
-	
 }

@@ -21,84 +21,109 @@ import com.opd_management.entities.Visit;
 import com.opd_management.entities.VisitReport;
 
 @RestController
-@RequestMapping("/visitreports")
+@RequestMapping("/visitreports") // Base API path for VisitReport operations
 public class VisitReportController {
 
 	@Autowired
-	private VisitReportService visitReportService;
+	private VisitReportService visitReportService; // Service layer for VisitReport CRUD
 	
 	@Autowired
-	private VisitService visitService;
+	private VisitService visitService; // To link visit records to reports
+	
+	
+	// ---------------------- CREATE VISIT REPORT ----------------------
 	
 	@PostMapping("/")
-	public ResponseEntity<VisitReport>SaveVisitReport(@RequestBody VisitReportDto visitReportDto){
+	public ResponseEntity<VisitReport> saveVisitReport(@RequestBody VisitReportDto visitReportDto){
 		
+		// Mapping DTO -> Entity
 		VisitReport visitReport = new VisitReport();
 		visitReport.setFile_name(visitReportDto.getFile_name());
 		visitReport.setFile_type(visitReportDto.getFile_type());
 		visitReport.setFile_url(visitReportDto.getFile_url());
 		visitReport.setCreated_at(visitReportDto.getCreated_at());
 		
+		// Linking visit entity
 		Visit visit = visitService.GetVisitById(visitReportDto.getVisitid());
 		visitReport.setVisitid(visit);
 		
-		VisitReport SaveVisitReport = visitReportService.saveVisitReport(visitReport);
+		// Save record in database
+		VisitReport savedReport = visitReportService.saveVisitReport(visitReport);
 		
-		return new ResponseEntity<>(SaveVisitReport,HttpStatus.CREATED);
+		return new ResponseEntity<>(savedReport, HttpStatus.CREATED);
 	}
+	
+	
+	// ---------------------- GET ALL VISIT REPORTS ----------------------
 	
 	@GetMapping("/")
-	public ResponseEntity<List<VisitReport>>GetAllVisitReport(){
+	public ResponseEntity<List<VisitReport>> getAllVisitReports(){
 		
-		List<VisitReport> visitReport = visitReportService.GetAllVisitReport();
-		if (visitReport == null) {
+		List<VisitReport> reports = visitReportService.GetAllVisitReport();
+		
+		if (reports == null || reports.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(visitReport,HttpStatus.FOUND);
+		
+		return new ResponseEntity<>(reports, HttpStatus.OK);
 	}
+	
+	
+	// ---------------------- GET REPORT BY ID ----------------------
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<VisitReport>GetvisitReportById(@PathVariable("id")int id){
+	public ResponseEntity<VisitReport> getVisitReportById(@PathVariable("id") int id){
 		
-		VisitReport visitReport = visitReportService.GetVisitReportById(id);
+		VisitReport report = visitReportService.GetVisitReportById(id);
 		
-		if (visitReport == null) {
+		if (report == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(visitReport,HttpStatus.FOUND);
+		
+		return new ResponseEntity<>(report, HttpStatus.OK);
 	}
+	
+	
+	// ---------------------- UPDATE REPORT ----------------------
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<VisitReport>UpdatevisitReport(@PathVariable("id")int id,@RequestBody VisitReportDto visitReportDto){
+	public ResponseEntity<VisitReport> updateVisitReport(@PathVariable("id") int id, @RequestBody VisitReportDto visitReportDto){
 		
-		VisitReport visitReport = visitReportService.GetVisitReportById(id);
+		VisitReport report = visitReportService.GetVisitReportById(id);
 		
-		if (visitReport == null) {
+		if (report == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		visitReport.setFile_name(visitReportDto.getFile_name());
-		visitReport.setFile_type(visitReportDto.getFile_type());
-		visitReport.setFile_url(visitReportDto.getFile_url());
-		visitReport.setCreated_at(visitReportDto.getCreated_at());
 		
+		// Update existing fields
+		report.setFile_name(visitReportDto.getFile_name());
+		report.setFile_type(visitReportDto.getFile_type());
+		report.setFile_url(visitReportDto.getFile_url());
+		report.setCreated_at(visitReportDto.getCreated_at());
+		
+		// Update linked visit
 		Visit visit = visitService.GetVisitById(visitReportDto.getVisitid());
-		visitReport.setVisitid(visit);
+		report.setVisitid(visit);
 		
-		VisitReport UpdateVisitReport = visitReportService.saveVisitReport(visitReport);
+		VisitReport updatedReport = visitReportService.saveVisitReport(report);
 		
-		return new ResponseEntity<>(UpdateVisitReport,HttpStatus.OK);
+		return new ResponseEntity<>(updatedReport, HttpStatus.OK);
 	}
 	
+	
+	// ---------------------- DELETE REPORT ----------------------
+	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<VisitReport>DeletevisitReport(@PathVariable("id")int id){
+	public ResponseEntity<Void> deleteVisitReport(@PathVariable("id") int id){
 		
-		VisitReport visitReport = visitReportService.GetVisitReportById(id);
+		VisitReport report = visitReportService.GetVisitReportById(id);
 		
-		if (visitReport == null) {
+		if (report == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		
 		visitReportService.DeleteVisitReport(id);
 		
-		return new ResponseEntity<>(HttpStatus.MOVED_PERMANENTLY);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Correct REST delete response
 	}
 }

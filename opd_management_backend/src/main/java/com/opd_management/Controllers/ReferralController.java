@@ -27,7 +27,7 @@ import com.opd_management.entities.ReferralCenter;
 import com.opd_management.entities.Visit;
 
 @RestController
-@RequestMapping("/referrals")
+@RequestMapping("/referrals") // Base URL for referral-related requests
 public class ReferralController {
 
 	@Autowired
@@ -45,16 +45,20 @@ public class ReferralController {
 	@Autowired
 	private ReferralService referralService;
 	
+	
+	// ---------------------- CREATE REFERRAL ----------------------
+	
 	@PostMapping("/")
-	public ResponseEntity<Referral>SaveReferral(@RequestBody ReferralDto referralDto){
+	public ResponseEntity<Referral> saveReferral(@RequestBody ReferralDto referralDto){
 		
+		// Mapping DTO to Entity
 		Referral referral = new Referral();
-		
 		referral.setNote_type(referralDto.getNote_type());
 		referral.setReason(referralDto.getReason());
 		referral.setDeatils(referralDto.getDeatils());
 		referral.setCreated_at(referralDto.getCreated_at());
 		
+		// Assign relationships
 		Doctor doctor = doctorService.getDoctorById(referralDto.getDoctorid());
 		referral.setDoctorid(doctor);
 		
@@ -67,46 +71,61 @@ public class ReferralController {
 		Visit visit = visitService.GetVisitById(referralDto.getVisitid());
 		referral.setVisitid(visit);
 		
-		Referral SaveReferral = referralService.saveReferral(referral);
+		// Save data to the database
+		Referral savedReferral = referralService.saveReferral(referral);
 		
-		return new ResponseEntity<>(SaveReferral,HttpStatus.CREATED);
-		
+		return new ResponseEntity<>(savedReferral, HttpStatus.CREATED);
 	}
+	
+	
+	// ---------------------- GET ALL REFERRALS ----------------------
 	
 	@GetMapping("/")
-	public ResponseEntity<List<Referral>>GetAllReferral(){
+	public ResponseEntity<List<Referral>> getAllReferral(){
 		
-		List<Referral> referral = referralService.GetAllReferral();
-		if(referral == null) {
+		List<Referral> referrals = referralService.GetAllReferral();
+		
+		if(referrals == null || referrals.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(referral,HttpStatus.FOUND);
+		
+		return new ResponseEntity<>(referrals, HttpStatus.OK);
 	}
+	
+	
+	// ---------------------- GET REFERRAL BY ID ----------------------
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Referral>GetReferralById(@PathVariable("id")int id){
+	public ResponseEntity<Referral> getReferralById(@PathVariable("id") int id){
 		
 		Referral referral = referralService.GetReferralById(id);
 		
 		if(referral == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(referral,HttpStatus.FOUND);
+		
+		return new ResponseEntity<>(referral, HttpStatus.OK);
 	}
 	
+	
+	// ---------------------- UPDATE REFERRAL ----------------------
+	
 	@PutMapping("/{id}")
-	public ResponseEntity<Referral>UpdateReferral(@PathVariable("id")int id,@RequestBody ReferralDto referralDto){
+	public ResponseEntity<Referral> updateReferral(@PathVariable("id") int id, @RequestBody ReferralDto referralDto){
 		
 		Referral referral = referralService.GetReferralById(id);
 		
 		if(referral == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		
+		// Update fields
 		referral.setNote_type(referralDto.getNote_type());
 		referral.setReason(referralDto.getReason());
 		referral.setDeatils(referralDto.getDeatils());
 		referral.setCreated_at(referralDto.getCreated_at());
 		
+		// Update relationships
 		Doctor doctor = doctorService.getDoctorById(referralDto.getDoctorid());
 		referral.setDoctorid(doctor);
 		
@@ -119,22 +138,27 @@ public class ReferralController {
 		Visit visit = visitService.GetVisitById(referralDto.getVisitid());
 		referral.setVisitid(visit);
 		
-		Referral UpdateReferral = referralService.saveReferral(referral);
+		// Save updated record
+		Referral updatedReferral = referralService.saveReferral(referral);
 		
-		return new ResponseEntity<>(UpdateReferral,HttpStatus.CREATED);
-		
+		return new ResponseEntity<>(updatedReferral, HttpStatus.OK);
 	}
 	
+	
+	// ---------------------- DELETE REFERRAL ----------------------
+	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Referral>DeleteReferral(@PathVariable("id")int id){
+	public ResponseEntity<Void> deleteReferral(@PathVariable("id") int id){
 		
 		Referral referral = referralService.GetReferralById(id);
 		
 		if(referral == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		
 		referralService.DeleteReferral(id);
-		return new ResponseEntity<>(HttpStatus.MOVED_PERMANENTLY);
+		
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Correct response for delete requests
 	}
 	
 }
