@@ -13,7 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="visits")
+@Table(name="visits")//table name
 public class Visit {
 
 	@Id
@@ -50,6 +50,7 @@ public class Visit {
 	private Date created_at;
 	private Date updated_at;
 	
+	//table relation
 	@ManyToOne
 	@JoinColumn(name="doctorId")
 	@JsonIgnoreProperties(value= {"doctorid"},allowSetters = true)
@@ -60,7 +61,7 @@ public class Visit {
 	@JsonIgnoreProperties(value= {"patientid"},allowSetters = true)
 	private Patient patientid;
 
-	
+	//getter and setter
 	public int getId() {
 		return id;
 	}
@@ -325,6 +326,7 @@ public class Visit {
 		this.patientid = patientid;
 	}
 
+	//contructor
 	public Visit(int id, Date visit_date, String complaints, String diagnosis, String advice, String bp, String pulse,
 			String saturation, String temperature, String respiration_rate, String sugar, String fasting_sugar,
 			String pp_sugar, String random_sugar, String urea_creatine, String past_history, String current_medication,
@@ -367,6 +369,7 @@ public class Visit {
 		this.patientid = patientid;
 	}
 
+	//contructor
 	public Visit() {
 		super();
 		// TODO Auto-generated constructor stub
