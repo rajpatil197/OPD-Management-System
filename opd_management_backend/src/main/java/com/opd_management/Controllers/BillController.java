@@ -21,18 +21,20 @@ import com.opd_management.entities.Bill;
 import com.opd_management.entities.Visit;
 
 @RestController
-@RequestMapping("/bills")
+@RequestMapping("/bills")// Base URL for bill-related APIs
 public class BillController {
 
 	@Autowired
-	private BillService billService;
+	private BillService billService;// Service to handle Bill database operations
 	
 	@Autowired 
-	private VisitService visitService;
+	private VisitService visitService;// Service to fetch visit details
 	
+	// ---------------------- Post All Bills ----------------------
 	@PostMapping("/")
 	public ResponseEntity<Bill>saveBill(@RequestBody BillDto billDto){
 		
+		// Create new Bill entity and set values from DTO
 		Bill bill = new Bill();
 		bill.setConcession(billDto.getConcession());
 		bill.setConsultation_fee(billDto.getConsultation_fee());
@@ -43,26 +45,29 @@ public class BillController {
 		bill.setTotal_amount(billDto.getTotal_amount());
 		bill.setCreated_at(billDto.getCreated_at());
 		
-		
+		// Assign related Visit entity using visit id
 		Visit visit = visitService.GetVisitById(billDto.getVisitid());
 		bill.setVisitid(visit);
 		
+		// Save bill into database
 		Bill Savebill = billService.saveBill(bill);
 	
 		return new ResponseEntity<>(Savebill,HttpStatus.CREATED);
 	}
 	
+	// ---------------------- Get All Bills ----------------------
 	@GetMapping("/")
 	public ResponseEntity<List<Bill>>GetAllBills(){
 		
 		List<Bill> bill = billService.GetAllBill();
-		
+
+		// If no bill found return NOT_FOUND
 		if(bill == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<>(bill,HttpStatus.FOUND);
 	}
-	
+	// ---------------------- Get All Bills By Id----------------------
 	@GetMapping("/{id}")
 	public ResponseEntity<Bill>GetBillById(@PathVariable("id")int id){
 		
@@ -73,7 +78,7 @@ public class BillController {
 		}
 		return new ResponseEntity<>(bill,HttpStatus.FOUND);
 	}
-	
+	// ---------------------- Update Bills by Id ----------------------
 	@PutMapping("/{id}")
 	public ResponseEntity<Bill>UpdateBill(@PathVariable("id")int id, @RequestBody BillDto billDto){
 		
@@ -98,7 +103,7 @@ public class BillController {
 	
 		return new ResponseEntity<>(Updatebill,HttpStatus.CREATED);
 	}
-	
+	// ---------------------- Delete Bills By Id ----------------------
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Bill>DeleteBill(@PathVariable("id")int id){
 		
