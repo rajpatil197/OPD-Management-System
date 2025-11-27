@@ -1,4 +1,4 @@
-OPD Management System – Backend
+OPD Management System – Backend Java
 
 This repository contains the backend API for the OPD Management System, designed to manage and automate outpatient department operations in clinics and hospitals.
 The backend provides secure REST APIs for handling patients, doctors, appointments, tokens, and medical records.
