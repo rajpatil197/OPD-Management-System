@@ -19,93 +19,118 @@ import com.opd_management.dtos.DoctorDto;
 import com.opd_management.entities.Doctor;
 
 @RestController
-@RequestMapping("/doctors")
+@RequestMapping("/doctors") // Base endpoint for doctor-related APIs
 public class DoctorController {
 	
-	// doctor service to access method 
+	// Inject service layer to perform doctor-related operations
 	@Autowired
 	private DoctorService doctorService;
 
 	
-	//to save a doctor details or data
+	// ---------------------- CREATE DOCTOR ----------------------
+	
 	@PostMapping("/")
-	public ResponseEntity<Doctor>SaveDoctor(@RequestBody DoctorDto doctorDto){
-		 Doctor doctor = new Doctor();
-		 doctor.setName(doctorDto.getName());
-		 doctor.setEmail(doctorDto.getEmail());
-		 doctor.setAddress(doctorDto.getAddress());
-		 doctor.setPassword(doctorDto.getPassword());
-		 doctor.setSpecialization(doctorDto.getSpecialization());
-		 doctor.setClinic_name(doctorDto.getClinic_name());
-		 doctor.setMobileno(doctorDto.getMobileno());
-		 doctor.setToken(doctorDto.getToken());
-		 doctor.setStatus(doctorDto.getStatus());
-		 doctor.setCreated_at(doctorDto.getCreated_at());
-		 doctor.setUpdated_at(doctorDto.getUpdated_at());
+	public ResponseEntity<Doctor> SaveDoctor(@RequestBody DoctorDto doctorDto){
+		
+		// Mapping data from DTO to Entity
+		Doctor doctor = new Doctor();
+		doctor.setName(doctorDto.getName());
+		doctor.setEmail(doctorDto.getEmail());
+		doctor.setAddress(doctorDto.getAddress());
+		doctor.setPassword(doctorDto.getPassword());
+		doctor.setSpecialization(doctorDto.getSpecialization());
+		doctor.setClinic_name(doctorDto.getClinic_name());
+		doctor.setMobileno(doctorDto.getMobileno());
+		doctor.setToken(doctorDto.getToken());
+		doctor.setStatus(doctorDto.getStatus());
+		doctor.setCreated_at(doctorDto.getCreated_at());
+		doctor.setUpdated_at(doctorDto.getUpdated_at());
 		 
-		 Doctor saveDoctor = doctorService.saveDoctor(doctor);
+		// Save doctor details in database
+		Doctor savedDoctor = doctorService.saveDoctor(doctor);
 		 
-		 return new ResponseEntity<>(saveDoctor,HttpStatus.CREATED);
+		return new ResponseEntity<>(savedDoctor, HttpStatus.CREATED);
 	}
 	
-	//get all doctor list
+	
+	// ---------------------- GET ALL DOCTORS ----------------------
+	
 	@GetMapping("/")
-	public ResponseEntity<List<Doctor>>GetAllDoctor(){
-		List<Doctor> doctor = doctorService.getAllDoctor();
-		if(doctor == null) {
+	public ResponseEntity<List<Doctor>> GetAllDoctor(){
+		List<Doctor> doctorList = doctorService.getAllDoctor();
+		
+		// If list empty, return NOT_FOUND message
+		if(doctorList == null || doctorList.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(doctor,HttpStatus.FOUND);
+		return new ResponseEntity<>(doctorList, HttpStatus.OK);
 	}
 	
-	//get doctor details by there id
+	
+	// ---------------------- GET DOCTOR BY ID ----------------------
+	
 	@GetMapping("/{id}")
-	public ResponseEntity<Doctor>GetDoctorById(@PathVariable("id")int id){
+	public ResponseEntity<Doctor> GetDoctorById(@PathVariable("id") int id){
 		
 		Doctor doctor = doctorService.getDoctorById(id);
+		
+		// Check if doctor exists
 		if(doctor == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(doctor,HttpStatus.FOUND);
+		return new ResponseEntity<>(doctor, HttpStatus.OK);
 	}
 	
-	// update doctor details by there id
+	
+	// ---------------------- UPDATE DOCTOR ----------------------
+	
 	@PutMapping("/{id}")
-	public ResponseEntity<Doctor>UpdateDoctor(@PathVariable("id")int id , @RequestBody DoctorDto doctorDto){
+	public ResponseEntity<Doctor> UpdateDoctor(@PathVariable("id") int id, @RequestBody DoctorDto doctorDto){
 		
 		Doctor doctor = doctorService.getDoctorById(id);
+		
+		// Check if doctor exists before updating
 		if(doctor == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
-		 doctor.setName(doctorDto.getName());
-		 doctor.setEmail(doctorDto.getEmail());
-		 doctor.setAddress(doctorDto.getAddress());
-		 doctor.setPassword(doctorDto.getPassword());
-		 doctor.setSpecialization(doctorDto.getSpecialization());
-		 doctor.setClinic_name(doctorDto.getClinic_name());
-		 doctor.setMobileno(doctorDto.getMobileno());
-		 doctor.setToken(doctorDto.getToken());
-		 doctor.setStatus(doctorDto.getStatus());
-		 doctor.setCreated_at(doctorDto.getCreated_at());
-		 doctor.setUpdated_at(doctorDto.getUpdated_at());
+		// Update doctor fields
+		doctor.setName(doctorDto.getName());
+		doctor.setEmail(doctorDto.getEmail());
+		doctor.setAddress(doctorDto.getAddress());
+		doctor.setPassword(doctorDto.getPassword());
+		doctor.setSpecialization(doctorDto.getSpecialization());
+		doctor.setClinic_name(doctorDto.getClinic_name());
+		doctor.setMobileno(doctorDto.getMobileno());
+		doctor.setToken(doctorDto.getToken());
+		doctor.setStatus(doctorDto.getStatus());
+		doctor.setCreated_at(doctorDto.getCreated_at());
+		doctor.setUpdated_at(doctorDto.getUpdated_at());
 		 
-		 Doctor UpdateDoctor = doctorService.saveDoctor(doctor);
-		 return new ResponseEntity<>(UpdateDoctor,HttpStatus.OK);
+		// Save updated doctor details
+		Doctor updatedDoctor = doctorService.saveDoctor(doctor);
+		
+		return new ResponseEntity<>(updatedDoctor, HttpStatus.OK);
 	}
 	
 	
-	// delete doctor details by there id
+	// ---------------------- DELETE DOCTOR ----------------------
+	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Doctor>DeleteDoctor(@PathVariable("id")int id){
+	public ResponseEntity<Void> DeleteDoctor(@PathVariable("id") int id){
 		
 		Doctor doctor = doctorService.getDoctorById(id);
 		
+		// Check if record exists
 		if(doctor == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		
+		// Delete doctor entry
 		doctorService.DeleteById(id);
-		return new ResponseEntity<>(HttpStatus.MOVED_PERMANENTLY);
+		
+		// Return 204 as delete success response
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 }
