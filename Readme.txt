@@ -4,7 +4,7 @@ This repository contains the backend API for the OPD Management System, designed
 The backend provides secure REST APIs for handling patients, doctors, appointments, tokens, and medical records.
 
 
-Features (Backend-Focused)
+Features (Backend in java using framework of springboot-Focused)
 
 User Authentication (JWT/Auth Token)
 Secure login for patients, doctors, and admins. 
