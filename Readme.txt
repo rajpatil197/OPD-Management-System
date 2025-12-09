@@ -1,34 +1,74 @@
-OPD Management System – Backend Java
+OPD Management System – Backend (Spring Boot + Hibernate)
 
-This repository contains the backend API for the OPD Management System, designed to manage and automate outpatient department operations in clinics and hospitals.
-The backend provides secure REST APIs for handling patients, doctors, appointments, tokens, and medical records.
+This is the backend service for the OPD Management System, built using Spring Boot, Hibernate/JPA, and MySQL.
+It provides REST APIs for managing patients, doctors, appointments, OPD visits, prescriptions, and authentication.
+The backend is designed to run in Eclipse IDE as a Maven Spring Boot project.
 
+✨ Features
 
-Features (Backend in java using framework of springboot-Focused)
+Patient registration and management
 
-User Authentication (JWT/Auth Token)
-Secure login for patients, doctors, and admins. 
+Doctor and department management
 
-Doctor Management API
-Add, update, delete, and manage doctor details like specialization, clinic name, status, etc.
+Appointment creation and scheduling
 
-Patient Management API
-Register patients, update profiles, and fetch patient data.
+OPD visit handling (diagnosis, notes, symptoms)
 
-Appointment Booking & Scheduling
-APIs to book, update, and cancel appointments.
+Prescription generation
 
-Token Generation System
-Auto-generate OPD tokens for patient queue management.
+JWT-based authentication and role management
 
-Medical Records API
-Store prescriptions, diagnosis notes, visit history.
+Database integration using Hibernate/JPA
 
-Role-Based Access Control
-Separate permissions for admin, doctor, and patient.
+RESTful API structure
 
-Error Handling & Validation
-Proper structured responses and validation checks.
+🛠️ Technologies Used
 
-Database Integration
-CRUD operations with MySQL used.
+Java 17+
+
+Spring Boot
+
+Spring Web
+
+Spring Security (JWT Authentication)
+
+Hibernate / JPA
+
+MySQL Database
+
+Maven
+
+Eclipse IDE
+
+📁 Project Setup (Eclipse)
+1. Import Project
+
+Open Eclipse
+
+Go to File → Import → Maven → Existing Maven Project
+
+Select the backend folder:
+
+opd-management-system/backend
+
+2. Configure Database
+
+Open src/main/resources/application.properties and update:
+
+spring.datasource.url=jdbc:mysql://localhost:3306/opd_db
+spring.datasource.username=root
+spring.datasource.password=yourpassword
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+🚀 Running the Backend
+
+In Eclipse:
+
+Right-click the project
+
+Select Run As → Spring Boot App
+
+Backend will start on:
+👉 http://localhost:8080
